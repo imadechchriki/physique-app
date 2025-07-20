@@ -1,0 +1,64 @@
+# === .NET ===
+bin/
+obj/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/.suo
+*.dbmdl
+*.bak
+*.log
+*.pdb
+*.cache
+*.mdb
+*.pidb
+*.svclog
+*.ncb
+*.sdf
+*.opensdf
+*.psess
+*.vsp
+*.vspx
+*.pidb
+*.vspscc
+*.vssscc
+*.orig
+*.ide
+
+# Rider & VS Code
+.idea/
+.vscode/
+
+# === Node.js / Next.js ===
+node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === Build output ===
+dist/
+build/
+coverage/
+.env
+.env.local
+.env.*.local
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+
+# === Others ===
+*.swp
+*.swo
+*.tmp
+
+# === Optional: Ignore local secrets/config files ===
+secrets.json
