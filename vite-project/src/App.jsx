@@ -4,80 +4,100 @@ import Login from "./Components/auth/Login";
 import Signup from "./Components/auth/Signup";
 import Home from "./Home";
 import DashboardLayout from "./Components/Dashboard/DashboardLayout";
-import DashboardHome from "./Components/Dashboard/DashboardHome";
-import StudentsPage from "./Components/Dashboard/StudentsPage";
-
+import DashboardHome from "./Components/Dashboard/Admin/DashboardHome";
+import StudentsPage from "./Components/Dashboard/Admin/StudentsPage";
+import Courses from "./Components/Dashboard/students/Courses";
+import Exams from "./Components/Dashboard/students/Exams";
 // Pages supplémentaires (vous pouvez les créer dans des fichiers séparés)
-const CoursesPage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Courses</h1>
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page des cours en construction...</p>
-    </div>
-  </div>
-);
-
 const ExamsPage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Exams</h1>
+  <DashboardLayout
+    currentPage="exams"
+    pageTitle="Examens"
+    pageSubtitle="Gestion des examens et évaluations"
+    userName="PR"
+  >
     <div className="bg-white rounded-xl p-6 border border-gray-100">
       <p className="text-gray-600">Page des examens en construction...</p>
     </div>
-  </div>
+  </DashboardLayout>
 );
 
 const QuizzesPage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Quizzes</h1>
+  <DashboardLayout
+    currentPage="quizzes"
+    pageTitle="Quiz"
+    pageSubtitle="Création et gestion des quiz"
+    userName="PR"
+  >
     <div className="bg-white rounded-xl p-6 border border-gray-100">
       <p className="text-gray-600">Page des quiz en construction...</p>
     </div>
-  </div>
+  </DashboardLayout>
 );
 
 const ExercisesPage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Exercises</h1>
+  <DashboardLayout
+    currentPage="exercises"
+    pageTitle="Exercices"
+    pageSubtitle="Banque d'exercices et devoirs"
+    userName="PR"
+  >
     <div className="bg-white rounded-xl p-6 border border-gray-100">
       <p className="text-gray-600">Page des exercices en construction...</p>
     </div>
-  </div>
+  </DashboardLayout>
 );
 
 const AnalyticsPage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Analytics</h1>
+  <DashboardLayout
+    currentPage="analytics"
+    pageTitle="Analytics"
+    pageSubtitle="Statistiques et analyses de performance"
+    userName="PR"
+  >
     <div className="bg-white rounded-xl p-6 border border-gray-100">
       <p className="text-gray-600">Page d'analytics en construction...</p>
     </div>
-  </div>
+  </DashboardLayout>
 );
 
 const SchedulePage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Schedule</h1>
+  <DashboardLayout
+    currentPage="schedule"
+    pageTitle="Planning"
+    pageSubtitle="Calendrier et emploi du temps"
+    userName="PR"
+  >
     <div className="bg-white rounded-xl p-6 border border-gray-100">
       <p className="text-gray-600">Page de planning en construction...</p>
     </div>
-  </div>
+  </DashboardLayout>
 );
 
 const ProfilePage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Profile</h1>
+  <DashboardLayout
+    currentPage="profile"
+    pageTitle="Profil"
+    pageSubtitle="Paramètres de profil utilisateur"
+    userName="PR"
+  >
     <div className="bg-white rounded-xl p-6 border border-gray-100">
       <p className="text-gray-600">Page de profil en construction...</p>
     </div>
-  </div>
+  </DashboardLayout>
 );
 
 const SettingsPage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-900 mb-4">Settings</h1>
+  <DashboardLayout
+    currentPage="settings"
+    pageTitle="Paramètres"
+    pageSubtitle="Configuration de l'application"
+    userName="PR"
+  >
     <div className="bg-white rounded-xl p-6 border border-gray-100">
       <p className="text-gray-600">Page de paramètres en construction...</p>
     </div>
-  </div>
+  </DashboardLayout>
 );
 
 export default function App() {
@@ -89,66 +109,37 @@ export default function App() {
         <Route path="/Login" element={<Login />} />
         <Route path="/Signup" element={<Signup />} />
         
-        {/* Routes du dashboard avec layout */}
-        <Route path="/Dashboard" element={
-          <DashboardLayout>
-            <DashboardHome />
-          </DashboardLayout>
-        } />
+        {/* Routes du dashboard avec layout intégré */}
+        <Route path="/Dashboard" element={<DashboardHome />} />
         
-        <Route path="/Students" element={
-          <DashboardLayout>
-            <StudentsPage />
-          </DashboardLayout>
-        } />
+        <Route path="/Students" element={<StudentsPage />} />
         
         <Route path="/courses" element={
-          <DashboardLayout>
-            <CoursesPage />
+          <DashboardLayout
+            currentPage="courses"
+            pageTitle="Cours"
+            pageSubtitle="Gestion des contenus pédagogiques"
+            userName="PR"
+          >
+            <Courses />
           </DashboardLayout>
         } />
         
         <Route path="/exams" element={
-          <DashboardLayout>
-            <ExamsPage />
+          <DashboardLayout
+            currentPage="exams"
+            pageTitle="Examens"
+            userName="PR"
+          >
+            <Exams />
           </DashboardLayout>
         } />
-        
-        <Route path="/quizzes" element={
-          <DashboardLayout>
-            <QuizzesPage />
-          </DashboardLayout>
-        } />
-        
-        <Route path="/exercises" element={
-          <DashboardLayout>
-            <ExercisesPage />
-          </DashboardLayout>
-        } />
-        
-        <Route path="/analytics" element={
-          <DashboardLayout>
-            <AnalyticsPage />
-          </DashboardLayout>
-        } />
-        
-        <Route path="/schedule" element={
-          <DashboardLayout>
-            <SchedulePage />
-          </DashboardLayout>
-        } />
-        
-        <Route path="/profile" element={
-          <DashboardLayout>
-            <ProfilePage />
-          </DashboardLayout>
-        } />
-        
-        <Route path="/settings" element={
-          <DashboardLayout>
-            <SettingsPage />
-          </DashboardLayout>
-        } />
+        <Route path="/quizzes" element={<QuizzesPage />} />
+        <Route path="/exercises" element={<ExercisesPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </Router>
   );

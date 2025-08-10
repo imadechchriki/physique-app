@@ -5,6 +5,7 @@ import {
   Target,
   Zap,
 } from "lucide-react";
+import DashboardLayout from '../DashboardLayout';
 
 const DashboardHome = () => {
   const statsData = [
@@ -78,7 +79,12 @@ const DashboardHome = () => {
   );
 
   return (
-    <div className="p-6">
+    <DashboardLayout
+      currentPage="home"
+      pageTitle="Tableau de bord"
+      pageSubtitle="Vue d'ensemble de votre plateforme éducative"
+      userName="PR"
+    >
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statsData.map((stat, index) => (
@@ -92,29 +98,29 @@ const DashboardHome = () => {
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-gray-900">
-              Student Distribution
+              Répartition des Étudiants
             </h3>
-            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-              View All
+            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
+              Voir tout
             </button>
           </div>
 
           <div className="space-y-6">
             {[
               {
-                name: "Mathematical Physics",
+                name: "Physique Mathématique",
                 students: 128,
                 percentage: 37,
                 color: "blue",
               },
               {
-                name: "Experimental Physics",
+                name: "Physique Expérimentale",
                 students: 142,
                 percentage: 42,
                 color: "emerald",
               },
               {
-                name: "Theoretical Physics",
+                name: "Physique Théorique",
                 students: 72,
                 percentage: 21,
                 color: "purple",
@@ -171,7 +177,7 @@ const DashboardHome = () => {
         <div className="bg-white rounded-2xl p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-gray-900">
-              Recent Activity
+              Activité Récente
             </h3>
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
           </div>
@@ -183,7 +189,7 @@ const DashboardHome = () => {
           </div>
 
           <button className="w-full mt-4 py-2 text-blue-600 hover:text-blue-700 text-sm font-medium text-center hover:bg-blue-50 rounded-lg transition-colors">
-            View All Activity
+            Voir toute l'activité
           </button>
         </div>
       </div>
@@ -197,9 +203,9 @@ const DashboardHome = () => {
             </div>
             <span className="text-2xl font-bold">94%</span>
           </div>
-          <h4 className="font-semibold mb-1">Course Completion</h4>
+          <h4 className="font-semibold mb-1">Completion des Cours</h4>
           <p className="text-blue-100 text-sm">
-            Average across all courses
+            Moyenne sur tous les cours
           </p>
         </div>
 
@@ -210,13 +216,13 @@ const DashboardHome = () => {
             </div>
             <span className="text-2xl font-bold">87%</span>
           </div>
-          <h4 className="font-semibold mb-1">Student Engagement</h4>
+          <h4 className="font-semibold mb-1">Engagement Étudiant</h4>
           <p className="text-emerald-100 text-sm">
-            Active participation rate
+            Taux de participation active
           </p>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
