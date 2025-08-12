@@ -1,104 +1,32 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import './App.css';
+
+// Auth Components
 import Login from "./Components/auth/Login";
 import Signup from "./Components/auth/Signup";
+
+// Public Components
 import Home from "./Home";
-import DashboardLayout from "./Components/Dashboard/DashboardLayout";
+
+// Layout
+import DashboardLayout from "./Components/shared/DashboardLayout";
+
+// Admin Components
 import DashboardHome from "./Components/Dashboard/Admin/DashboardHome";
 import StudentsPage from "./Components/Dashboard/Admin/StudentsPage";
-import Courses from "./Components/Dashboard/students/Courses";
-import Exams from "./Components/Dashboard/students/Exams";
-// Pages supplémentaires (vous pouvez les créer dans des fichiers séparés)
-const ExamsPage = () => (
-  <DashboardLayout
-    currentPage="exams"
-    pageTitle="Examens"
-    pageSubtitle="Gestion des examens et évaluations"
-    userName="PR"
-  >
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page des examens en construction...</p>
-    </div>
-  </DashboardLayout>
-);
+import AdminCourses from "./Components/Dashboard/Admin/AdminCourses";
+import AdminExamsPage from "./Components/Dashboard/Admin/AdminExamsPage";
+import AdminQuizzesPage from "./Components/Dashboard/Admin/AdminQuizzesPage";
+import AnalyticsPage from "./Components/Dashboard/Admin/AnalyticsPage";
 
-const QuizzesPage = () => (
-  <DashboardLayout
-    currentPage="quizzes"
-    pageTitle="Quiz"
-    pageSubtitle="Création et gestion des quiz"
-    userName="PR"
-  >
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page des quiz en construction...</p>
-    </div>
-  </DashboardLayout>
-);
+// Student Components
+import StudentDashboardHome from "./Components/Dashboard/Students/StudentDashboardHome";
+import StudentCourses from "./Components/Dashboard/Students/Courses";
+import StudentExams from "./Components/Dashboard/students/Exams";
+import StudentQuizzes from "./Components/Dashboard/Students/Quizzes";
 
-const ExercisesPage = () => (
-  <DashboardLayout
-    currentPage="exercises"
-    pageTitle="Exercices"
-    pageSubtitle="Banque d'exercices et devoirs"
-    userName="PR"
-  >
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page des exercices en construction...</p>
-    </div>
-  </DashboardLayout>
-);
-
-const AnalyticsPage = () => (
-  <DashboardLayout
-    currentPage="analytics"
-    pageTitle="Analytics"
-    pageSubtitle="Statistiques et analyses de performance"
-    userName="PR"
-  >
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page d'analytics en construction...</p>
-    </div>
-  </DashboardLayout>
-);
-
-const SchedulePage = () => (
-  <DashboardLayout
-    currentPage="schedule"
-    pageTitle="Planning"
-    pageSubtitle="Calendrier et emploi du temps"
-    userName="PR"
-  >
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page de planning en construction...</p>
-    </div>
-  </DashboardLayout>
-);
-
-const ProfilePage = () => (
-  <DashboardLayout
-    currentPage="profile"
-    pageTitle="Profil"
-    pageSubtitle="Paramètres de profil utilisateur"
-    userName="PR"
-  >
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page de profil en construction...</p>
-    </div>
-  </DashboardLayout>
-);
-
-const SettingsPage = () => (
-  <DashboardLayout
-    currentPage="settings"
-    pageTitle="Paramètres"
-    pageSubtitle="Configuration de l'application"
-    userName="PR"
-  >
-    <div className="bg-white rounded-xl p-6 border border-gray-100">
-      <p className="text-gray-600">Page de paramètres en construction...</p>
-    </div>
-  </DashboardLayout>
-);
+// Shared Components
+import ProfilePage from "./Components/shared/ProfilePage";
 
 export default function App() {
   return (
@@ -106,40 +34,74 @@ export default function App() {
       <Routes>
         {/* Routes publiques */}
         <Route path="/" element={<Home />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/Signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         
-        {/* Routes du dashboard avec layout intégré */}
-        <Route path="/Dashboard" element={<DashboardHome />} />
-        
-        <Route path="/Students" element={<StudentsPage />} />
-        
-        <Route path="/courses" element={
+        {/* Routes ADMIN */}
+        <Route path="/admin/dashboard" element={<DashboardHome />} />
+        <Route path="/admin/students" element={<StudentsPage />} />
+        <Route path="/admin/courses" element={
           <DashboardLayout
             currentPage="courses"
-            pageTitle="Cours"
-            pageSubtitle="Gestion des contenus pédagogiques"
-            userName="PR"
+            pageTitle="Gestion des Cours"
+            pageSubtitle="Administration des contenus pédagogiques"
+            userName="Admin"
+            userRole="admin"
           >
-            <Courses />
+            <AdminCourses />
           </DashboardLayout>
         } />
+        <Route path="/admin/exams" element={<AdminExamsPage />} />
+        <Route path="/admin/quizzes" element={<AdminQuizzesPage />} />
+        <Route path="/admin/analytics" element={<AnalyticsPage />} />
+        <Route path="/admin/profile" element={<ProfilePage userRole="admin" />} />
         
-        <Route path="/exams" element={
+        {/* Routes STUDENT */}
+        <Route path="/student/dashboard" element={<StudentDashboardHome />} />
+        <Route path="/student/courses" element={
+          <DashboardLayout
+            currentPage="courses"
+            pageTitle="Mes Cours"
+            pageSubtitle="Accédez à vos contenus pédagogiques"
+            userName="Étudiant"
+            userRole="student"
+          >
+            <StudentCourses />
+          </DashboardLayout>
+        } />
+        <Route path="/student/exams" element={
           <DashboardLayout
             currentPage="exams"
-            pageTitle="Examens"
-            userName="PR"
+            pageTitle="Mes Examens"
+            pageSubtitle="Consultez et passez vos examens"
+            userName="Étudiant"
+            userRole="student"
           >
-            <Exams />
+            <StudentExams />
           </DashboardLayout>
         } />
-        <Route path="/quizzes" element={<QuizzesPage />} />
-        <Route path="/exercises" element={<ExercisesPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/schedule" element={<SchedulePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/student/quizzes" element={
+          <DashboardLayout
+            currentPage="quizzes"
+            pageTitle="Mes Quiz"
+            pageSubtitle="Entraînez-vous avec nos quiz"
+            userName="Étudiant"
+            userRole="student"
+          >
+            <StudentQuizzes />
+          </DashboardLayout>
+        } />
+        <Route path="/student/profile" element={<ProfilePage userRole="student" />} />
+        
+        {/* Routes de redirection par défaut */}
+        <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+        
+        {/* Routes de compatibilité (ancien système) */}
+        <Route path="/Dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/Students" element={<Navigate to="/admin/students" replace />} />
+        <Route path="/courses" element={<Navigate to="/student/courses" replace />} />
+        <Route path="/exams" element={<Navigate to="/student/exams" replace />} />
+        <Route path="/quizzes" element={<Navigate to="/student/quizzes" replace />} />
       </Routes>
     </Router>
   );

@@ -5,7 +5,7 @@ import {
   Target,
   Zap,
 } from "lucide-react";
-import DashboardLayout from '../DashboardLayout';
+import DashboardLayout from '../../shared/DashboardLayout';
 
 const DashboardHome = () => {
   const statsData = [

@@ -10,7 +10,7 @@ import {
   TrendingUp,
   Activity
 } from 'lucide-react';
-import DashboardLayout from '../DashboardLayout';
+import DashboardLayout from '../../shared/DashboardLayout';
 
 const StudentsPage = () => {
   const [activeView, setActiveView] = useState('grid');
