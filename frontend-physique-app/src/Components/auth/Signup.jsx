@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Mail, Lock, Eye, EyeOff, Atom, ArrowRight, User, GraduationCap, BookOpen, FlaskConical, Zap, Brain, Microscope, Sparkles, Star } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Atom, ArrowRight, User, GraduationCap, BookOpen, FlaskConical, Zap, Brain, Microscope, Sparkles, Star, MapPin, School } from 'lucide-react';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +8,8 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    highSchoolName: '',
+    city: '',
     niveau: '1ère BAC',
     filiere: 'SM',
     termsAccepted: false
@@ -78,6 +80,12 @@ const Signup = () => {
     if (!formData.lastName.trim() || formData.lastName.trim().length < 2) {
       newErrors.lastName = 'Nom requis (min. 2 caractères)';
     }
+    if (!formData.highSchoolName.trim() || formData.highSchoolName.trim().length < 2) {
+      newErrors.highSchoolName = 'Nom du lycée requis';
+    }
+    if (!formData.city.trim() || formData.city.trim().length < 2) {
+      newErrors.city = 'Ville requise';
+    }
     if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email valide requis';
     }
@@ -106,6 +114,20 @@ const Signup = () => {
     }
   }, [errors]);
 
+  // Handle niveau change to reset filiere when Tronc Commun is selected
+  const handleNiveauChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+      // Reset filiere if Tronc Commun is selected
+      filiere: value === 'Tronc Commun' ? '' : prev.filiere
+    }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  }, [errors]);
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -128,6 +150,9 @@ const Signup = () => {
     };
     return colorMap[filiere] || colorMap['PC'];
   }, []);
+
+  // Check if Tronc Commun is selected to hide filiere selection
+  const isTroncCommunSelected = formData.niveau === 'Tronc Commun';
 
   return (
     <div className="h-screen w-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -185,8 +210,8 @@ const Signup = () => {
                   <BookOpen className="w-3 h-3" />
                   Niveau
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {['1ère BAC', '2ème BAC'].map((niveau) => (
+                <div className="grid grid-cols-1 gap-2">
+                  {['Tronc Commun', '1ère BAC', '2ème BAC'].map((niveau) => (
                     <label key={niveau} className={`flex items-center justify-center p-2 rounded-xl cursor-pointer transition-all text-xs ${
                       formData.niveau === niveau 
                         ? 'bg-purple-500/20 border border-purple-400 text-purple-300' 
@@ -197,7 +222,7 @@ const Signup = () => {
                         name="niveau"
                         value={niveau}
                         checked={formData.niveau === niveau}
-                        onChange={handleInputChange}
+                        onChange={handleNiveauChange}
                         className="sr-only"
                       />
                       {niveau}
@@ -206,40 +231,57 @@ const Signup = () => {
                 </div>
               </div>
 
-              {/* Stream selection */}
-              <div className="flex-1">
-                <label className="block text-xs font-semibold text-slate-200 mb-2 flex items-center gap-1">
-                  <FlaskConical className="w-3 h-3" />
-                  Filière
-                </label>
-                <div className="grid grid-cols-1 gap-2 h-full">
-                  {filiereData.map((filiere) => {
-                    const IconComponent = filiere.icon;
-                    const colors = getFiliereColors(filiere.code);
-                    return (
-                      <label key={filiere.code} className={`flex items-center p-3 rounded-xl cursor-pointer transition-all ${
-                        formData.filiere === filiere.code 
-                          ? `bg-gradient-to-r ${colors.bg} border ${colors.border} ${colors.text}` 
-                          : 'bg-white/5 border border-white/10 text-slate-300 hover:bg-white/8'
-                      }`}>
-                        <input
-                          type="radio"
-                          name="filiere"
-                          value={filiere.code}
-                          checked={formData.filiere === filiere.code}
-                          onChange={handleInputChange}
-                          className="sr-only"
-                        />
-                        <IconComponent className="w-4 h-4 mr-2" />
-                        <div>
-                          <div className="font-bold text-sm">{filiere.code}</div>
-                          <div className="text-xs opacity-75">{filiere.desc}</div>
-                        </div>
-                      </label>
-                    );
-                  })}
+              {/* Stream selection - only show if not Tronc Commun */}
+              {!isTroncCommunSelected && (
+                <div className="flex-1">
+                  <label className="block text-xs font-semibold text-slate-200 mb-2 flex items-center gap-1">
+                    <FlaskConical className="w-3 h-3" />
+                    Filière
+                  </label>
+                  <div className="grid grid-cols-1 gap-2 h-full">
+                    {filiereData.map((filiere) => {
+                      const IconComponent = filiere.icon;
+                      const colors = getFiliereColors(filiere.code);
+                      return (
+                        <label key={filiere.code} className={`flex items-center p-3 rounded-xl cursor-pointer transition-all ${
+                          formData.filiere === filiere.code 
+                            ? `bg-gradient-to-r ${colors.bg} border ${colors.border} ${colors.text}` 
+                            : 'bg-white/5 border border-white/10 text-slate-300 hover:bg-white/8'
+                        }`}>
+                          <input
+                            type="radio"
+                            name="filiere"
+                            value={filiere.code}
+                            checked={formData.filiere === filiere.code}
+                            onChange={handleInputChange}
+                            className="sr-only"
+                          />
+                          <IconComponent className="w-4 h-4 mr-2" />
+                          <div>
+                            <div className="font-bold text-sm">{filiere.code}</div>
+                            <div className="text-xs opacity-75">{filiere.desc}</div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Message for Tronc Commun */}
+              {isTroncCommunSelected && (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center p-4">
+                    <BookOpen className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm">
+                      Niveau Tronc Commun sélectionné
+                    </p>
+                    <p className="text-slate-500 text-xs mt-1">
+                      Aucune filière spécifique requise
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -252,6 +294,44 @@ const Signup = () => {
                   <p className="text-red-400 text-xs">{errors.general}</p>
                 </div>
               )}
+
+              {/* High School and City fields */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-200 mb-1 flex items-center gap-1">
+                    <School className="w-3 h-3" />
+                    Nom du lycée
+                  </label>
+                  <input
+                    type="text"
+                    name="highSchoolName"
+                    value={formData.highSchoolName}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 bg-white/5 border rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-400 ${
+                      errors.highSchoolName ? 'border-red-500/50' : 'border-white/10'
+                    }`}
+                    placeholder="Lycée Mohammed V"
+                  />
+                  {errors.highSchoolName && <p className="text-red-400 text-xs mt-1">{errors.highSchoolName}</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-200 mb-1 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    Ville
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 bg-white/5 border rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-400 ${
+                      errors.city ? 'border-red-500/50' : 'border-white/10'
+                    }`}
+                    placeholder="Casablanca"
+                  />
+                  {errors.city && <p className="text-red-400 text-xs mt-1">{errors.city}</p>}
+                </div>
+              </div>
 
               {/* Name fields */}
               <div className="grid grid-cols-2 gap-2">

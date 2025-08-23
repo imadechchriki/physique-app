@@ -106,7 +106,7 @@ const DashboardLayout = ({
               )}
             </div>
 
-            {/* Single unified toggle button with proper spacing */}
+            {/* Modern toggle button */}
             <div className="flex-shrink-0 ml-3">
               <button
                 onClick={() => {
@@ -116,10 +116,26 @@ const DashboardLayout = ({
                     setIsMobileMenuOpen(false);
                   }
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 transition-all duration-200 group"
+                title={isSidebarOpen ? "Réduire le menu" : "Élargir le menu"}
               >
-                <ChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${!isSidebarOpen ? 'rotate-0' : 'rotate-180'} lg:block hidden`} />
-                <X className="w-4 h-4 text-gray-500 lg:hidden block" />
+                {/* Desktop: Elegant double chevron */}
+                <div className="lg:block hidden">
+                  {isSidebarOpen ? (
+                    <svg className="w-4 h-4 text-gray-600 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-gray-600 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                  )}
+                </div>
+                
+                {/* Mobile: Clean X */}
+                <svg className="lg:hidden block w-4 h-4 text-gray-600 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>
@@ -154,6 +170,23 @@ const DashboardLayout = ({
                     <span className="ml-3 font-medium">
                       {item.label}
                     </span>
+                  )}
+                  
+                  {/* Simple expand indicator on hover */}
+                  {!isSidebarOpen && item.id === navigationItems[0].id && (
+                    <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsSidebarOpen(true);
+                        }}
+                        className="w-4 h-4 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                        title="Afficher la barre latérale"
+                      >
+                        <span className="text-xs">›</span>
+                      </button>
+                    </div>
                   )}
                   
                   {/* Tooltip for collapsed sidebar */}
