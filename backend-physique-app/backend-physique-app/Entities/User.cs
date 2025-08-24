@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace backend_physique_app.Entities
 {
     public class User
@@ -9,7 +11,7 @@ namespace backend_physique_app.Entities
         public string PasswordHash { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         // 🔐 Rôle unique
         public Guid RoleId { get; set; }
         public Role Role { get; set; } = null!;

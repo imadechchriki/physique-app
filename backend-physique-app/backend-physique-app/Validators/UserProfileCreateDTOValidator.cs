@@ -13,9 +13,7 @@ public class UserProfileCreateDTOValidator : AbstractValidator<UserProfileCreate
             .Must(BeBefore2007).When(x => x.BirthDate.HasValue)
             .WithMessage("La date de naissance doit être antérieure à 2007");
 
-        RuleFor(x => x.CIN)
-            .MaximumLength(20).When(x => !string.IsNullOrWhiteSpace(x.CIN))
-            .WithMessage("Le CIN ne doit pas dépasser 20 caractères");
+
 
         RuleFor(x => x.Address)
             .MaximumLength(150).When(x => !string.IsNullOrWhiteSpace(x.Address));

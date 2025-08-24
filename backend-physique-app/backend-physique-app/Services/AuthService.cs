@@ -25,9 +25,12 @@ namespace backend_physique_app.Services
         private readonly ILogger<AuthService> _logger;
         private readonly IErrorHandler _errorHandler;
 
-        // Constantes pour les rôles et claims
-        private const string STUDENT_ROLE = "Étudiant";
-        private const string FILIERE_CLAIM_TYPE = "filiere";
+        // Constants for roles and claims
+        private const string STUDENT_ROLE = "Student";
+        private const string ADMIN_ROLE = "Admin";
+        private const string LEVEL_CLAIM_TYPE = "level";
+        private const string LYCEE_CLAIM_TYPE = "lycee";
+        private const string CITY_CLAIM_TYPE = "city";
 
         public AuthService(
             UserDbContext context,
@@ -51,16 +54,18 @@ namespace backend_physique_app.Services
                     return null;
                 }
 
-                // Inclusion des données nécessaires pour les étudiants
+                // Include necessary data for students and admins
                 var user = await _context.Users
                     .Include(u => u.Role)
-                    .Include(u => u.StudentProfile) // Inclusion du profil étudiant si nécessaire
+                    .Include(u => u.StudentProfile)
+                    .Include(u => u.AdminProfile)
+                    .Include(u => u.Profile)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.Email == request.Email);
 
                 if (user is null)
                 {
-                    _logger.LogWarning("Login failed: user with email {Email} not found or inactive", request.Email);
+                    _logger.LogWarning("Login failed: user with email {Email} not found", request.Email);
                     return null;
                 }
 
@@ -106,7 +111,7 @@ namespace backend_physique_app.Services
             {
                 var accessToken = await CreateTokenAsync(user);
                 var refreshToken = await GenerateAndSaveRefreshTokenAsync(user);
-                int tokenExpiryMinutes = GetConfigValue("AppSettings:TokenExpiryMinutes", 60); // Changé de 15 à 60 minutes
+                int tokenExpiryMinutes = GetConfigValue("AppSettings:TokenExpiryMinutes", 60);
 
                 return new AuthResponseDTO
                 {
@@ -125,7 +130,8 @@ namespace backend_physique_app.Services
                 var token = await _context.RefreshTokens
                     .Include(rt => rt.User)
                     .ThenInclude(u => u.Role)
-                    .Include(rt => rt.User.StudentProfile) // Inclusion du profil étudiant
+                    .Include(rt => rt.User.StudentProfile)
+                    .Include(rt => rt.User.AdminProfile)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(rt => rt.Token == refreshToken &&
                                              rt.ExpiresAt > DateTime.UtcNow &&
@@ -153,15 +159,17 @@ namespace backend_physique_app.Services
             {
                 var refreshToken = GenerateRefreshToken();
 
+                // Revoke all existing refresh tokens for this user
                 await _context.RefreshTokens
                     .Where(rt => rt.UserId == user.Id && rt.RevokedAt == null)
                     .ExecuteUpdateAsync(s => s.SetProperty(rt => rt.RevokedAt, DateTime.UtcNow));
 
                 var newRefreshToken = new RefreshToken
                 {
+                    Id = Guid.NewGuid(),
                     Token = refreshToken,
                     UserId = user.Id,
-                    ExpiresAt = DateTime.UtcNow.AddDays(GetConfigValue("AppSettings:RefreshTokenExpiryDays", 30)), // Changé de 7 à 30 jours
+                    ExpiresAt = DateTime.UtcNow.AddDays(GetConfigValue("AppSettings:RefreshTokenExpiryDays", 30)),
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -178,20 +186,22 @@ namespace backend_physique_app.Services
             return await _errorHandler.HandleOperationAsync(async () =>
             {
                 var jwtKey = GetRequiredEnvironmentVariable("JWT_TOKEN");
-                var issuer = GetEnvironmentVariableOrDefault("JWT_ISSUER", "DefaultIssuer");
-                var audience = GetEnvironmentVariableOrDefault("JWT_AUDIENCE", "DefaultAudience");
+                var issuer = GetEnvironmentVariableOrDefault("JWT_ISSUER", "PhysicsLabAPI");
+                var audience = GetEnvironmentVariableOrDefault("JWT_AUDIENCE", "PhysicsLabClient");
 
                 var claims = new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
                     new Claim(ClaimTypes.Role, user.Role?.Name ?? "")
                 };
 
-                // Ajout conditionnel de la filière pour les étudiants
-                await AddStudentSpecificClaimsAsync(user, claims);
+                // Add role-specific claims
+                await AddRoleSpecificClaimsAsync(user, claims);
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
@@ -201,7 +211,7 @@ namespace backend_physique_app.Services
                     audience: audience,
                     claims: claims,
                     notBefore: DateTime.UtcNow,
-                    expires: DateTime.UtcNow.AddMinutes(GetConfigValue("AppSettings:TokenExpiryMinutes", 60)), // Changé de 15 à 60 minutes
+                    expires: DateTime.UtcNow.AddMinutes(GetConfigValue("AppSettings:TokenExpiryMinutes", 60)),
                     signingCredentials: creds
                 );
 
@@ -211,104 +221,63 @@ namespace backend_physique_app.Services
         }
 
         /// <summary>
-        /// Ajoute les claims spécifiques aux étudiants (filière, etc.)
+        /// Add role-specific claims for students and admins
         /// </summary>
-        /// <param name="user">L'utilisateur pour lequel créer les claims</param>
-        /// <param name="claims">La liste des claims à enrichir</param>
-        private async Task AddStudentSpecificClaimsAsync(User user, List<Claim> claims)
+        private async Task AddRoleSpecificClaimsAsync(User user, List<Claim> claims)
         {
             try
             {
-                // Vérification si l'utilisateur est un étudiant
+                // Check if user is a student
                 if (user.Role?.Name?.Equals(STUDENT_ROLE, StringComparison.OrdinalIgnoreCase) == true)
                 {
-                    // Récupération de la filière de l'étudiant
-                    var studentFiliere = await GetStudentFiliereAsync(user.Id);
+                    var studentProfile = user.StudentProfile;
 
-                    if (!string.IsNullOrEmpty(studentFiliere))
+                    // If StudentProfile wasn't loaded, fetch it
+                    if (studentProfile == null)
                     {
-                        claims.Add(new Claim(FILIERE_CLAIM_TYPE, studentFiliere));
-                        _logger.LogDebug("Added filière claim '{Filiere}' for student {Email}", studentFiliere, user.Email);
+                        studentProfile = await _context.StudentProfiles
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(sp => sp.UserId == user.Id);
+                    }
+
+                    if (studentProfile != null)
+                    {
+                        // Add student-specific claims
+                        if (!string.IsNullOrEmpty(studentProfile.Level))
+                        {
+                            claims.Add(new Claim(LEVEL_CLAIM_TYPE, studentProfile.Level));
+                        }
+
+                        if (!string.IsNullOrEmpty(studentProfile.Lycee))
+                        {
+                            claims.Add(new Claim(LYCEE_CLAIM_TYPE, studentProfile.Lycee));
+                        }
+
+                        if (!string.IsNullOrEmpty(studentProfile.City))
+                        {
+                            claims.Add(new Claim(CITY_CLAIM_TYPE, studentProfile.City));
+                        }
+
+                        _logger.LogDebug("Added student claims for {Email}: Level={Level}, Lycee={Lycee}, City={City}",
+                            user.Email, studentProfile.Level, studentProfile.Lycee, studentProfile.City);
                     }
                     else
                     {
-                        _logger.LogWarning("Student {Email} has no filière defined", user.Email);
+                        _logger.LogWarning("Student {Email} has no profile defined", user.Email);
                     }
+                }
+                // Check if user is an admin
+                else if (user.Role?.Name?.Equals(ADMIN_ROLE, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    // Add admin-specific claims if needed
+                    claims.Add(new Claim("admin_level", "full"));
+                    _logger.LogDebug("Added admin claims for {Email}", user.Email);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while adding student-specific claims for user {Email}", user.Email);
-                // On continue sans interrompre la création du token
-            }
-        }
-
-        /// <summary>
-        /// Récupère la filière d'un étudiant par son ID utilisateur
-        /// </summary>
-        /// <param name="userId">L'ID de l'utilisateur</param>
-        /// <returns>Le nom de la filière ou null si non trouvée</returns>
-        private async Task<string?> GetStudentFiliereAsync(Guid userId)
-        {
-            try
-            {
-                // CORRECTION: Puisque Filiere est un string dans StudentProfile
-                var studentProfile = await _context.StudentProfiles
-                    .AsNoTracking()
-                    .Where(sp => sp.UserId == userId)
-                    .FirstOrDefaultAsync();
-
-                return studentProfile?.Filiere; // Directement le string, pas .Name
-
-                // Si vous avez une entité Filiere séparée, utilisez cette version à la place :
-                /*
-                var studentProfile = await _context.StudentProfiles
-                    .Include(sp => sp.Filiere)
-                    .AsNoTracking()
-                    .Where(sp => sp.UserId == userId)
-                    .FirstOrDefaultAsync();
-
-                return studentProfile?.Filiere?.Name;
-                */
-
-                // Option 2: Si vous avez une relation directe User -> Filiere
-                /*
-                var user = await _context.Users
-                    .Include(u => u.Filiere)
-                    .AsNoTracking()
-                    .Where(u => u.Id == userId)
-                    .FirstOrDefaultAsync();
-
-                return user?.Filiere?.Name;
-                */
-
-                // Option 3: Si vous avez une table de liaison User -> Inscription -> Filiere
-                /*
-                var inscription = await _context.Inscriptions
-                    .Include(i => i.Filiere)
-                    .AsNoTracking()
-                    .Where(i => i.UserId == userId && i.IsActive)
-                    .OrderByDescending(i => i.DateInscription)
-                    .FirstOrDefaultAsync();
-
-                return inscription?.Filiere?.Name;
-                */
-
-                // Option 4: Si la filière est directement dans l'entité User
-                /*
-                var userWithFiliere = await _context.Users
-                    .AsNoTracking()
-                    .Where(u => u.Id == userId)
-                    .Select(u => u.Filiere)
-                    .FirstOrDefaultAsync();
-
-                return userWithFiliere;
-                */
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving filière for user {UserId}", userId);
-                return null;
+                _logger.LogError(ex, "Error while adding role-specific claims for user {Email}", user.Email);
+                // Continue without interrupting token creation
             }
         }
 
@@ -341,7 +310,7 @@ namespace backend_physique_app.Services
                     return false;
                 }
 
-                // Recherche du refresh token dans la base de données
+                // Find the refresh token in the database
                 var refreshToken = await _context.RefreshTokens
                     .FirstOrDefaultAsync(rt => rt.Token == request.RefreshToken &&
                                              rt.RevokedAt == null);
@@ -352,18 +321,17 @@ namespace backend_physique_app.Services
                     return false;
                 }
 
-                // Révocation du refresh token
+                // Revoke the refresh token
                 refreshToken.RevokedAt = DateTime.UtcNow;
 
-                // Révocation de tous les autres refresh tokens du même utilisateur (option de sécurité)
-                // Décommentez cette section si vous souhaitez révoquer tous les tokens de l'utilisateur
+                // Optional: Revoke all refresh tokens for this user (for enhanced security)
+                // Uncomment this section if you want to revoke all user tokens
                 /*
                 await _context.RefreshTokens
                     .Where(rt => rt.UserId == refreshToken.UserId && rt.RevokedAt == null)
                     .ExecuteUpdateAsync(s => s.SetProperty(rt => rt.RevokedAt, DateTime.UtcNow));
                 */
 
-                // Enregistrement des modifications
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("User with ID {UserId} logged out successfully", refreshToken.UserId);
