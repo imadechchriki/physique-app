@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace backend_physique_app.Controllers
+namespace physics_api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

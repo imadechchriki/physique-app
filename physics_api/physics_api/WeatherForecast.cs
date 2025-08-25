@@ -1,4 +1,4 @@
-namespace backend_physique_app
+namespace physics_api
 {
     public class WeatherForecast
     {
