@@ -1,0 +1,249 @@
+/* Ajoute ces règles à la fin de ton fichier CSS existant */
+
+/* ========================================
+   CORRECTIONS POUR L'ALIGNEMENT DES ICÔNES
+   ======================================== */
+
+/* Fix pour les icônes Lucide React */
+.lucide {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  flex-shrink: 0 !important;
+}
+
+/* Fix pour les containers flex avec icônes */
+.flex.items-center {
+  align-items: center !important;
+}
+
+/* Fix spécifique pour les inputs avec icônes */
+input[type="text"], input[type="search"], input[type="email"], input[type="password"] {
+  line-height: 1.5 !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Fix pour les icônes dans les inputs (position absolue) */
+.absolute.left-3 {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Fix pour les boutons avec icônes */
+button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+/* Fix pour les liens de navigation */
+a {
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none;
+}
+
+/* Fix pour les éléments span avec icônes */
+span {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* Fix spécifique pour les éléments de navigation sidebar */
+.sidebar-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  line-height: 1.2 !important;
+}
+
+/* Fix pour les cards avec icônes */
+.card-content {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.75rem !important;
+}
+
+/* Fix pour les headers avec icônes */
+.header-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+/* Fix pour les dropdowns et menus */
+.dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.5rem 0.75rem !important;
+  line-height: 1.2 !important;
+}
+
+/* Fix pour les badges et tags */
+.badge, .tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  line-height: 1 !important;
+}
+
+/* Override des styles qui peuvent causer des problèmes */
+* {
+  line-height: inherit !important;
+}
+
+/* Fix spécifique pour ton input de recherche */
+.search-input-container {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.search-input-container input {
+  padding-left: 2.5rem !important;
+  height: 3rem !important;
+  line-height: 1.5 !important;
+}
+
+.search-input-container .search-icon {
+  position: absolute !important;
+  left: 0.75rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+}
+
+/* Fix pour les éléments avec gap */
+.gap-1 { gap: 0.25rem !important; }
+.gap-2 { gap: 0.5rem !important; }
+.gap-3 { gap: 0.75rem !important; }
+.gap-4 { gap: 1rem !important; }
+
+/* Fix pour les conteneurs flex */
+.flex {
+  display: flex !important;
+}
+
+.inline-flex {
+  display: inline-flex !important;
+}
+
+/* Fix pour l'alignement vertical */
+.items-center {
+  align-items: center !important;
+}
+
+.items-start {
+  align-items: flex-start !important;
+}
+
+.items-end {
+  align-items: flex-end !important;
+}
+
+/* Fix pour la justification */
+.justify-center {
+  justify-content: center !important;
+}
+
+.justify-between {
+  justify-content: space-between !important;
+}
+
+.justify-start {
+  justify-content: flex-start !important;
+}
+
+/* Fix spécifique pour les icônes dans les tableaux */
+table td, table th {
+  vertical-align: middle !important;
+}
+
+/* Fix pour les tooltips et popovers */
+.tooltip, .popover {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* Fix pour les modals */
+.modal-content {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.modal-header, .modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+/* Fix pour les forms */
+.form-group {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.form-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+/* Classes utilitaires pour forcer l'alignement */
+.icon-center {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.text-icon-align {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+/* Fix pour les éléments qui ont tendance à mal s'aligner */
+label, .label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+/* Reset pour certains éléments problématiques */
+svg {
+  display: block !important;
+  flex-shrink: 0 !important;
+}
+
+/* Fix pour les checkboxes et radio buttons */
+input[type="checkbox"], input[type="radio"] {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+  .flex {
+    flex-wrap: wrap !important;
+  }
+  
+  .search-input-container input {
+    font-size: 16px !important; /* Évite le zoom sur iOS */
+  }
+}
+
+/* Debug mode - à retirer après test */
+/*
+.debug-flex * {
+  border: 1px solid red !important;
+  box-sizing: border-box !important;
+}
+*/
