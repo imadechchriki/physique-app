@@ -33,27 +33,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/test/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/test/**").permitAll()
 
-                        // Swagger endpoints
-                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+                        // Swagger endpoints - IMPORTANT!
+                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
 
                         // Actuator health check
                         .requestMatchers("/actuator/health").permitAll()
-
-                        // Physics endpoints - accessible to authenticated users
-                        .requestMatchers(HttpMethod.GET, "/api/physics/**").hasAnyRole("ADMIN", "STUDENT")
-
-                        // Admin-only endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/courses/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/courses/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/courses/**").hasRole("ADMIN")
-
-                        // Student and Admin can access their own profile
-                        .requestMatchers(HttpMethod.GET, "/api/users/me").hasAnyRole("ADMIN", "STUDENT")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/me").hasAnyRole("ADMIN", "STUDENT")
 
                         // All other requests require authentication
                         .anyRequest().authenticated()

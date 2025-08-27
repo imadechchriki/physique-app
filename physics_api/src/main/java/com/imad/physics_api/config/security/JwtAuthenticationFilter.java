@@ -95,15 +95,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
         // Skip authentication for public endpoints
         return path.startsWith("/api/auth/") ||
                 path.startsWith("/api/test/") ||
-                path.startsWith("/swagger-ui/") ||
-                path.startsWith("/api-docs/") ||
-                path.equals("/swagger-ui.html") ||
-                path.startsWith("/actuator/health");
+                path.startsWith("/api/swagger-ui/") ||
+                path.startsWith("/api/api-docs/") ||
+                path.startsWith("/api/v3/api-docs/") ||
+                path.equals("/api/swagger-ui.html") ||
+                path.startsWith("/api/actuator/health");
     }
 }
