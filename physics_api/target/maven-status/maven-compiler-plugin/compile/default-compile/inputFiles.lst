@@ -1,6 +1,7 @@
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\AdminUserMigration.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\CorsConfig.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\EnvironmentConfig.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\JacksonConfig.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\JpaAuditingConfig.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\LoggingConfig.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\security\JwtAuthenticationEntryPoint.java
@@ -8,9 +9,13 @@ C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\se
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\security\SecurityConfig.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\config\SwaggerConfig.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\controller\AuthController.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\controller\PasswordController.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\controller\TestController.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\request\ChangePasswordRequest.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\request\ForgotPasswordRequest.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\request\LoginRequest.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\request\RegisterRequest.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\request\ResetPasswordRequest.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\response\ApiResponse.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\response\AuthResponse.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\dto\response\UserDto.java
@@ -35,6 +40,9 @@ C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\repositor
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\repository\UserRepository.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\service\ActivityLogService.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\service\AuthService.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\service\EmailService.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\service\LoggingService.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\service\PasswordService.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\service\UserMapperService.java
 C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\util\JwtUtil.java
+C:\Projets\physique_app\physics_api\src\main\java\com\imad\physics_api\util\TokenGenerator.java
