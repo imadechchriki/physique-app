@@ -75,15 +75,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     User user = userOpt.get();
 
                     if (jwtUtil.validateToken(token, user)) {
-                        // Create CustomUserDetails instead of using User directly
-                        CustomUserDetails userDetails = new CustomUserDetails(user);
+                        List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                        );
 
+                        // Set User object directly as principal
                         UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails, // Use CustomUserDetails as principal
-                                        null,
-                                        userDetails.getAuthorities()
-                                );
+                                new UsernamePasswordAuthenticationToken(user, null, authorities);
 
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -98,12 +96,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
-        // Skip authentication for public endpoints
-        return path.startsWith("/api/auth/") ||
+        // Skip authentication for public endpoints only
+        return path.equals("/api/auth/register") ||
+                path.equals("/api/auth/login") ||
+                path.equals("/api/auth/refresh") ||
+                path.startsWith("/api/auth/password/forgot") ||
+                path.startsWith("/api/auth/password/reset") ||
                 path.startsWith("/api/test/") ||
                 path.startsWith("/api/swagger-ui/") ||
                 path.startsWith("/api/api-docs/") ||

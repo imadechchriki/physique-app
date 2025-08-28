@@ -1,7 +1,5 @@
 package com.imad.physics_api.controller;
 
-import com.imad.physics_api.config.security.CustomUserDetails;
-import org.springframework.security.core.Authentication;
 import com.imad.physics_api.dto.request.ChangePasswordRequest;
 import com.imad.physics_api.dto.request.ForgotPasswordRequest;
 import com.imad.physics_api.dto.request.ResetPasswordRequest;
@@ -108,10 +106,9 @@ public class PasswordController {
     })
     public ResponseEntity<ApiResponse<String>> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails, // Changed parameter type
+            @AuthenticationPrincipal User currentUser, // Direct User object
             HttpServletRequest httpRequest) {
 
-        User currentUser = userDetails.getUser(); // Extract User from CustomUserDetails
         logger.info("Password change requested for user: {}", currentUser.getEmail());
 
         passwordService.changePassword(request, currentUser, httpRequest);

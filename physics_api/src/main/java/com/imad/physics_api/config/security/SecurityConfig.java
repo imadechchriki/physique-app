@@ -3,9 +3,10 @@ package com.imad.physics_api.config.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,23 +30,30 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http.cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(authz -> authz
                         // Public endpoints
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/refresh").permitAll()
+                        .requestMatchers("/auth/password/forgot", "/auth/password/reset").permitAll()
                         .requestMatchers("/test/**").permitAll()
-
-                        // Swagger endpoints - IMPORTANT!
-                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-
-                        // Actuator health check
+                        .requestMatchers("/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
 
-                        // All other requests require authentication
+                        // Protected endpoints - require authentication
+                        .requestMatchers("/auth/password/change").authenticated()
+                        .requestMatchers("/auth/logout").authenticated()
+
+                        // Admin only endpoints
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // Any other request requires authentication
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
