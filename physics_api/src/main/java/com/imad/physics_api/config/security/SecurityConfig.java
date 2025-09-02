@@ -44,6 +44,7 @@ public class SecurityConfig {
                         // Protected endpoints - require authentication
                         .requestMatchers("/auth/password/change").authenticated()
                         .requestMatchers("/auth/logout").authenticated()
+                        .requestMatchers("/profile/**").authenticated()
 
                         // Admin only endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")

@@ -1,71 +1,58 @@
-// dto/response/UserProfileDto.java
-package com.imad.physics_api.dto.response;
+// dto/request/UpdateProfileRequest.java
+package com.imad.physics_api.dto.request;
 
 import com.imad.physics_api.model.enums.AcademicLevel;
 import com.imad.physics_api.model.enums.Branch;
-import com.imad.physics_api.model.enums.UserRole;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
-public class UserProfileDto {
+public class UpdateProfileRequest {
 
-    private UUID id;
+    @NotBlank(message = "First name is required")
+    @Size(max = 50, message = "First name must not exceed 50 characters")
     private String firstName;
-    private String lastName;
-    private String email;
-    private UserRole role;
-    private String avatarUrl;
-    private Boolean isActive;
-    private Boolean emailVerified;
-    private LocalDateTime lastLoginAt;
-    private LocalDateTime createdAt;
 
-    // Profile fields
+    @NotBlank(message = "Last name is required")
+    @Size(max = 50, message = "Last name must not exceed 50 characters")
+    private String lastName;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    private String email;
+
+    @Size(max = 100, message = "School name must not exceed 100 characters")
     private String schoolName;
+
+    @Size(max = 50, message = "City must not exceed 50 characters")
     private String city;
+
     private AcademicLevel academicLevel;
+
     private Branch branch;
+
+    @Size(max = 1000, message = "Bio must not exceed 1000 characters")
     private String bio;
+
+    @Size(max = 20, message = "Phone number must not exceed 20 characters")
     private String phoneNumber;
+
     private LocalDate birthDate;
 
     // Constructors
-    public UserProfileDto() {}
+    public UpdateProfileRequest() {}
 
     // Getters and Setters
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getFullName() { return firstName + " " + lastName; }
-
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-    public UserRole getRole() { return role; }
-    public void setRole(UserRole role) { this.role = role; }
-
-    public String getAvatarUrl() { return avatarUrl; }
-    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
-
-    public Boolean getIsActive() { return isActive; }
-    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
-
-    public Boolean getEmailVerified() { return emailVerified; }
-    public void setEmailVerified(Boolean emailVerified) { this.emailVerified = emailVerified; }
-
-    public LocalDateTime getLastLoginAt() { return lastLoginAt; }
-    public void setLastLoginAt(LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public String getSchoolName() { return schoolName; }
     public void setSchoolName(String schoolName) { this.schoolName = schoolName; }

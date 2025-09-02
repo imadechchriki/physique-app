@@ -1,34 +1,25 @@
+// dto/response/UserPreferencesDto.java
 package com.imad.physics_api.dto.response;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.imad.physics_api.model.enums.Language;
+import com.imad.physics_api.model.enums.Theme;
 
-@Schema(description = "User preferences")
 public class UserPreferencesDto {
 
-    @Schema(description = "Preferred language", example = "fr")
-    private String language;
-
-    @Schema(description = "Timezone", example = "Africa/Casablanca")
+    private Language language;
     private String timezone;
-
-    @Schema(description = "Email notifications enabled")
     private Boolean emailNotifications;
-
-    @Schema(description = "Push notifications enabled")
     private Boolean pushNotifications;
-
-    @Schema(description = "Theme preference", example = "light")
-    private String theme;
-
-    @Schema(description = "Receive marketing emails")
+    private Theme theme;
     private Boolean receiveMarketingEmails;
-
-    @Schema(description = "Auto-save progress")
     private Boolean autoSaveProgress;
 
+    // Constructors
+    public UserPreferencesDto() {}
+
     // Getters and Setters
-    public String getLanguage() { return language; }
-    public void setLanguage(String language) { this.language = language; }
+    public Language getLanguage() { return language; }
+    public void setLanguage(Language language) { this.language = language; }
 
     public String getTimezone() { return timezone; }
     public void setTimezone(String timezone) { this.timezone = timezone; }
@@ -39,8 +30,8 @@ public class UserPreferencesDto {
     public Boolean getPushNotifications() { return pushNotifications; }
     public void setPushNotifications(Boolean pushNotifications) { this.pushNotifications = pushNotifications; }
 
-    public String getTheme() { return theme; }
-    public void setTheme(String theme) { this.theme = theme; }
+    public Theme getTheme() { return theme; }
+    public void setTheme(Theme theme) { this.theme = theme; }
 
     public Boolean getReceiveMarketingEmails() { return receiveMarketingEmails; }
     public void setReceiveMarketingEmails(Boolean receiveMarketingEmails) { this.receiveMarketingEmails = receiveMarketingEmails; }

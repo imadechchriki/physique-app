@@ -22,13 +22,21 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByEmailAndIsActiveTrueAndIsDeletedFalse(String email);
-
+    // Find user by ID excluding soft-deleted
+    Optional<User> findByIdAndIsDeletedFalse(UUID id);
     boolean existsByEmail(String email);
+    // Pagination methods for admin
+    Page<User> findByIsDeletedFalse(Pageable pageable);
 
+    // Find users by role
+    Page<User> findByRoleAndIsDeletedFalse(UserRole role, Pageable pageable);
     // Role-based queries
     List<User> findByRole(UserRole role);
+    // Count methods for statistics
+    long countByRoleAndIsDeletedFalse(UserRole role);
+    long countByRoleAndIsActiveTrueAndIsDeletedFalse(UserRole role);
+    long countByRoleAndIsActiveFalseAndIsDeletedFalse(UserRole role);
 
-    Page<User> findByRoleAndIsDeletedFalse(UserRole role, Pageable pageable);
 
     // Search queries
     @Query("SELECT u FROM User u WHERE " +

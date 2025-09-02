@@ -40,4 +40,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
 
     @Query("SELECT COUNT(rt) FROM RefreshToken rt WHERE rt.user = :user AND rt.isRevoked = false")
     long countValidTokensByUser(@Param("user") User user);
+    // Find all tokens by user (optional - for debugging)
+    @Query("SELECT rt FROM RefreshToken rt WHERE rt.user = :user AND rt.isRevoked = false")
+    java.util.List<RefreshToken> findActiveTokensByUser(@Param("user") User user);
 }
