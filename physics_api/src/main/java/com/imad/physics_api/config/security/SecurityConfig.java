@@ -1,3 +1,4 @@
+// Updated SecurityConfig.java - All Course/Exam APIs Protected
 package com.imad.physics_api.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,17 +35,31 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // Public endpoints
+                        // Public endpoints - NO authentication required
                         .requestMatchers("/auth/register", "/auth/login", "/auth/refresh").permitAll()
                         .requestMatchers("/auth/password/forgot", "/auth/password/reset").permitAll()
                         .requestMatchers("/test/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
 
-                        // Protected endpoints - require authentication
+                        // Authentication required endpoints
                         .requestMatchers("/auth/password/change").authenticated()
                         .requestMatchers("/auth/logout").authenticated()
                         .requestMatchers("/profile/**").authenticated()
+
+                        // Course endpoints - ALL PROTECTED (authentication required)
+                        .requestMatchers("/courses/upload").hasRole("ADMIN")               // Admin only
+                        .requestMatchers("/courses/*/access").authenticated()             // All authenticated users
+                        .requestMatchers("/courses/student").hasRole("STUDENT")           // Students only
+                        .requestMatchers("/courses/*").authenticated()                    // All authenticated users (view course by ID)
+                        .requestMatchers("/courses").authenticated()                      // All authenticated users (list courses)
+
+                        // Exam endpoints - ALL PROTECTED (authentication required)
+                        .requestMatchers("/exams/upload").hasRole("ADMIN")                // Admin only
+                        .requestMatchers("/exams/*/access").authenticated()              // All authenticated users
+                        .requestMatchers("/exams/student").hasRole("STUDENT")            // Students only
+                        .requestMatchers("/exams/*").authenticated()                     // All authenticated users (view exam by ID)
+                        .requestMatchers("/exams").authenticated()                       // All authenticated users (list exams)
 
                         // Admin only endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")
