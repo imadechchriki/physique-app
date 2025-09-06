@@ -1,13 +1,29 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Mail, Lock, Eye, EyeOff, Atom, ArrowRight, FlaskConical, Zap, Sparkles } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
+  const { login, isLoading, error, clearError, isAuthenticated } = useAuth();
+  
+  const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   const [focusedField, setFocusedField] = useState(null);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear auth errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   // Memoized particles to prevent regeneration on every render
   const particles = useMemo(() => {
@@ -85,35 +101,52 @@ const Login = () => {
   }, [formData.email, formData.password]);
 
   const handleInputChange = useCallback((e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
 
+    // Clear field-specific errors
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-  }, [errors]);
+
+    // Clear auth errors when user starts typing
+    if (error) {
+      clearError();
+    }
+  }, [errors, error, clearError]);
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     
     if (!validateForm()) return;
 
-    setIsLoading(true);
-    
     try {
-      console.log('Login attempt:', formData);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      alert('Connexion réussie!');
-    } catch (error) {
-      setErrors({ general: 'Erreur de connexion. Veuillez réessayer.' });
-    } finally {
-      setIsLoading(false);
+      await login(formData.email, formData.password, formData.rememberMe);
+      // Navigation will be handled by the useEffect hook when isAuthenticated changes
+    } catch (loginError) {
+      console.error('Login failed:', loginError);
+      // Error will be displayed via the error state from useAuth
     }
-  }, [formData, validateForm]);
+  }, [formData, validateForm, login]);
 
   const togglePasswordVisibility = useCallback(() => {
     setShowPassword(prev => !prev);
   }, []);
+
+  const handleForgotPassword = useCallback(() => {
+    navigate('/forgot-password');
+  }, [navigate]);
+
+  const handleSignUp = useCallback(() => {
+    navigate('/signup');
+  }, [navigate]);
+
+  const handleBackToHome = useCallback(() => {
+    navigate('/');
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -205,13 +238,13 @@ const Login = () => {
           <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl relative overflow-hidden group will-change-transform">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-blue-500/5 to-cyan-500/5 rounded-3xl"></div>
             
-            <div className="relative z-10">
-              {/* General Error */}
-              {errors.general && (
+            <form onSubmit={handleSubmit} className="relative z-10">
+              {/* Auth Error Display */}
+              {error && (
                 <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl backdrop-blur-sm animate-shake">
                   <p className="text-red-400 text-sm flex items-center gap-2">
                     <Zap className="w-4 h-4" />
-                    {errors.general}
+                    {error}
                   </p>
                 </div>
               )}
@@ -236,10 +269,12 @@ const Login = () => {
                     onChange={handleInputChange}
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
-                    className={`w-full pl-12 pr-4 py-4 bg-white/5 border rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm hover:bg-white/8 will-change-auto ${
+                    disabled={isLoading}
+                    className={`w-full pl-12 pr-4 py-4 bg-white/5 border rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm hover:bg-white/8 will-change-auto disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.email ? 'border-red-500/50 ring-2 ring-red-500/20' : 'border-white/10 hover:border-white/30'
                     }`}
                     placeholder="votre@email.com"
+                    autoComplete="email"
                   />
                 </div>
                 {errors.email && (
@@ -270,15 +305,18 @@ const Login = () => {
                     onChange={handleInputChange}
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => setFocusedField(null)}
-                    className={`w-full pl-12 pr-14 py-4 bg-white/5 border rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm hover:bg-white/8 will-change-auto ${
+                    disabled={isLoading}
+                    className={`w-full pl-12 pr-14 py-4 bg-white/5 border rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-400/50 transition-all duration-200 backdrop-blur-sm hover:bg-white/8 will-change-auto disabled:opacity-50 disabled:cursor-not-allowed ${
                       errors.password ? 'border-red-500/50 ring-2 ring-red-500/20' : 'border-white/10 hover:border-white/30'
                     }`}
                     placeholder="••••••••••"
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center hover:scale-105 transition-transform duration-200"
+                    disabled={isLoading}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center hover:scale-105 transition-transform duration-200 disabled:opacity-50"
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5 text-slate-400 hover:text-purple-400 transition-colors" />
@@ -300,24 +338,29 @@ const Login = () => {
                 <label className="flex items-center cursor-pointer group">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-400 focus:ring-2 accent-purple-500 transition-transform hover:scale-105"
+                    name="rememberMe"
+                    checked={formData.rememberMe}
+                    onChange={handleInputChange}
+                    disabled={isLoading}
+                    className="w-4 h-4 text-purple-500 bg-white/10 border-white/20 rounded focus:ring-purple-400 focus:ring-2 accent-purple-500 transition-transform hover:scale-105 disabled:opacity-50"
                   />
                   <span className="ml-3 text-sm text-slate-300 group-hover:text-slate-200 transition-colors">
                     Se souvenir de moi
                   </span>
                 </label>
-                <a 
-                  href="/forgot-password" 
-                  className="text-sm text-purple-400 hover:text-purple-300 transition-colors duration-200 hover:underline"
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={isLoading}
+                  className="text-sm text-purple-400 hover:text-purple-300 transition-colors duration-200 hover:underline disabled:opacity-50"
                 >
                   Mot de passe oublié ?
-                </a>
+                </button>
               </div>
 
               {/* Submit Button */}
               <button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-500 text-white py-4 px-6 rounded-2xl font-semibold flex items-center justify-center gap-3 hover:scale-102 hover:shadow-xl hover:shadow-purple-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative overflow-hidden group will-change-transform"
               >
@@ -337,7 +380,7 @@ const Login = () => {
                   )}
                 </div>
               </button>
-            </div>
+            </form>
           </div>
         </div>
 
@@ -345,27 +388,29 @@ const Login = () => {
         <div className="text-center mt-8 animate-fadeInUp" style={{animationDelay: '0.4s'}}>
           <p className="text-slate-300">
             Nouveau sur PhysicsLab ?{' '}
-            <a 
-              href="/signup" 
-              className="text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-200 hover:underline"
+            <button
+              onClick={handleSignUp}
+              disabled={isLoading}
+              className="text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-200 hover:underline disabled:opacity-50"
             >
               Créer un compte
-            </a>
+            </button>
           </p>
         </div>
 
         {/* Back to Home */}
         <div className="text-center mt-4 animate-fadeInUp" style={{animationDelay: '0.6s'}}>
-          <a 
-            href="/" 
-            className="text-slate-400 hover:text-slate-300 text-sm transition-colors duration-200 hover:underline inline-flex items-center gap-1"
+          <button
+            onClick={handleBackToHome}
+            disabled={isLoading}
+            className="text-slate-400 hover:text-slate-300 text-sm transition-colors duration-200 hover:underline inline-flex items-center gap-1 disabled:opacity-50"
           >
             ← Retour à l'accueil
-          </a>
+          </button>
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes floatParticle {
           0% { transform: translateY(0px) scale(var(--scale)); }
           100% { transform: translateY(-100vh) scale(var(--scale)); }
