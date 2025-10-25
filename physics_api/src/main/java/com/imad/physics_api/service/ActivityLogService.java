@@ -26,6 +26,11 @@ public class ActivityLogService {
         logActivity(user, eventType, description, request, true, null);
     }
 
+    // Add this new overloaded method to handle boolean success parameter
+    public void logActivity(User user, EventType eventType, String description, boolean success) {
+        logActivity(user, eventType, description, null, success, null);
+    }
+
     public void logActivity(User user, EventType eventType, String description,
                             HttpServletRequest request, boolean success, String errorMessage) {
         ActivityLog log = new ActivityLog();

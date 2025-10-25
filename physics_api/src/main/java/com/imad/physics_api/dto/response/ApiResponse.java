@@ -65,6 +65,15 @@ public class ApiResponse<T> {
         return response;
     }
 
+    // NEW: Error method that accepts data (like success method)
+    public static <T> ApiResponse<T> error(String message, T data) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.status = "error";
+        response.message = message;
+        response.data = data;
+        return response;
+    }
+
     // Getters and Setters
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

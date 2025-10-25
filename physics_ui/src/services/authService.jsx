@@ -220,47 +220,68 @@ class AuthService {
   }
 
   // Make authenticated API request
-  async authenticatedRequest(url, options = {}) {
-    try {
-      const token = await this.getValidAccessToken();
-      
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...options.headers,
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      // If we get 401, try to refresh token once
-      if (response.status === 401 && this.refreshToken) {
-        try {
-          await this.refreshAccessToken();
-          const newToken = await this.getValidAccessToken();
-          
-          return fetch(url, {
-            ...options,
-            headers: {
-              ...options.headers,
-              'Authorization': `Bearer ${newToken}`,
-              'Content-Type': 'application/json',
-            },
-          });
-        } catch (refreshError) {
-          // Refresh failed, redirect to login
-          this.clearStorage();
-          throw new Error('Authentication failed');
-        }
-      }
-
-      return response;
-    } catch (error) {
-      console.error('Authenticated request error:', error);
-      throw error;
+async authenticatedRequest(url, options = {}) {
+  try {
+    const token = await this.getValidAccessToken();
+    
+    // Construire les headers correctement
+    const headers = {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`,
+    };
+    
+    // Ajouter Content-Type seulement si on a un body
+    if (options.body && typeof options.body === 'string') {
+      headers['Content-Type'] = 'application/json';
     }
-  }
+    
+    console.log('🔐 Authenticated request:', { 
+      url, 
+      method: options.method || 'GET',
+      hasAuth: !!headers.Authorization,
+      hasContentType: !!headers['Content-Type']
+    });
+    
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
 
+    // Si nous obtenons 401, essayer de rafraîchir le token une fois
+    if (response.status === 401 && this.refreshToken) {
+      console.log('🔄 Got 401, attempting token refresh...');
+      try {
+        await this.refreshAccessToken();
+        const newToken = await this.getValidAccessToken();
+        
+        const newHeaders = {
+          ...options.headers,
+          'Authorization': `Bearer ${newToken}`,
+        };
+        
+        if (options.body && typeof options.body === 'string') {
+          newHeaders['Content-Type'] = 'application/json';
+        }
+        
+        console.log('🔄 Retrying with new token...');
+        
+        return fetch(url, {
+          ...options,
+          headers: newHeaders,
+        });
+      } catch (refreshError) {
+        console.error('❌ Token refresh failed:', refreshError);
+        this.clearStorage();
+        throw new Error('Authentication failed');
+      }
+    }
+
+    return response;
+  } catch (error) {
+    console.error('❌ Authenticated request error:', error);
+    throw error;
+  }
+}
   // Check if user is authenticated
   isAuthenticated() {
     return !!(this.accessToken && this.refreshToken && this.user);

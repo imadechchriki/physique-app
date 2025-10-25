@@ -1,10 +1,11 @@
-// src/App.jsx - Version complète avec Error Boundary
+// src/App.jsx - Version complète avec Error Boundary et nouvelles routes
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import "./App.css";
 
 // Context et Error Boundary
@@ -39,6 +40,14 @@ import StudentQuizzes from "./Components/Dashboard/Students/Quizzes";
 import ProfilePage from "./Components/shared/ProfilePage";
 import LoadingSpinner from "./Components/shared/LoadingSpinner";
 
+// Lazy loading des nouveaux composants
+const AdminCourseCreate = lazy(() =>
+  import("./Components/Dashboard/Admin/AdminCourseCreate")
+);
+const StudentCourseView = lazy(() =>
+  import("./Components/Dashboard/Students/CourseView")
+);
+
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { isAuthenticated, isInitialized, user } = useAuth();
@@ -54,7 +63,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   // Check role-based access if roles are specified
   if (allowedRoles.length > 0 && user && !allowedRoles.includes(user.role)) {
     // Redirect to appropriate dashboard based on user role
-    const redirectPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
+    const redirectPath =
+      user.role === "ADMIN" ? "/admin/dashboard" : "/student/dashboard";
     return <Navigate to={redirectPath} replace />;
   }
 
@@ -71,7 +81,8 @@ const PublicRoute = ({ children }) => {
 
   if (isAuthenticated && user) {
     // Redirect to appropriate dashboard based on user role
-    const redirectPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard';
+    const redirectPath =
+      user.role === "ADMIN" ? "/admin/dashboard" : "/student/dashboard";
     return <Navigate to={redirectPath} replace />;
   }
 
@@ -79,12 +90,12 @@ const PublicRoute = ({ children }) => {
 };
 
 // Role-based Dashboard Layout Wrapper
-const DashboardLayoutWrapper = ({ 
-  currentPage, 
-  pageTitle, 
-  pageSubtitle, 
+const DashboardLayoutWrapper = ({
+  currentPage,
+  pageTitle,
+  pageSubtitle,
   allowedRoles = [],
-  children 
+  children,
 }) => {
   const { user } = useAuth();
 
@@ -94,10 +105,10 @@ const DashboardLayoutWrapper = ({
         currentPage={currentPage}
         pageTitle={pageTitle}
         pageSubtitle={pageSubtitle}
-        userName={user?.fullName || user?.firstName || 'Utilisateur'}
-        userRole={user?.role?.toLowerCase() || 'user'}
+        userName={user?.fullName || user?.firstName || "Utilisateur"}
+        userRole={user?.role?.toLowerCase() || "user"}
       >
-        {children}
+        <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
       </DashboardLayout>
     </ProtectedRoute>
   );
@@ -111,39 +122,39 @@ const AppRoutes = () => {
     <Routes>
       {/* Routes publiques */}
       <Route path="/" element={<Home />} />
-      <Route 
-        path="/login" 
+      <Route
+        path="/login"
         element={
           <PublicRoute>
             <Login />
           </PublicRoute>
-        } 
+        }
       />
-      <Route 
-        path="/signup" 
+      <Route
+        path="/signup"
         element={
           <PublicRoute>
             <Signup />
           </PublicRoute>
-        } 
+        }
       />
 
       {/* Routes ADMIN */}
-      <Route 
-        path="/admin/dashboard" 
+      <Route
+        path="/admin/dashboard"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']}>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <DashboardHome />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/admin/students" 
+      <Route
+        path="/admin/students"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']}>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <StudentsPage />
           </ProtectedRoute>
-        } 
+        }
       />
       <Route
         path="/admin/courses"
@@ -152,9 +163,22 @@ const AppRoutes = () => {
             currentPage="courses"
             pageTitle="Gestion des Cours"
             pageSubtitle="Administration des contenus pédagogiques"
-            allowedRoles={['ADMIN']}
+            allowedRoles={["ADMIN"]}
           >
             <AdminCourses />
+          </DashboardLayoutWrapper>
+        }
+      />
+      <Route
+        path="/admin/courses/create"
+        element={
+          <DashboardLayoutWrapper
+            currentPage="courses"
+            pageTitle="Créer un cours"
+            pageSubtitle="Ajouter du contenu pédagogique"
+            allowedRoles={["ADMIN"]}
+          >
+            <AdminCourseCreate />
           </DashboardLayoutWrapper>
         }
       />
@@ -165,7 +189,7 @@ const AppRoutes = () => {
             currentPage="exams"
             pageTitle="Gestion des Examens"
             pageSubtitle="Administration des examens et évaluations"
-            allowedRoles={['ADMIN']}
+            allowedRoles={["ADMIN"]}
           >
             <AdminExamsPage />
           </DashboardLayoutWrapper>
@@ -178,37 +202,37 @@ const AppRoutes = () => {
             currentPage="quizzes"
             pageTitle="Gestion des Quiz"
             pageSubtitle="Administration des quiz et évaluations rapides"
-            allowedRoles={['ADMIN']}
+            allowedRoles={["ADMIN"]}
           >
             <AdminQuizzesPage />
           </DashboardLayoutWrapper>
         }
       />
-      <Route 
-        path="/admin/analytics" 
+      <Route
+        path="/admin/analytics"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']}>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <AnalyticsPage />
           </ProtectedRoute>
-        } 
+        }
       />
       <Route
         path="/admin/profile"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']}>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <ProfilePage userRole="admin" />
           </ProtectedRoute>
         }
       />
 
       {/* Routes STUDENT */}
-      <Route 
-        path="/student/dashboard" 
+      <Route
+        path="/student/dashboard"
         element={
-          <ProtectedRoute allowedRoles={['STUDENT']}>
+          <ProtectedRoute allowedRoles={["STUDENT"]}>
             <StudentDashboardHome />
           </ProtectedRoute>
-        } 
+        }
       />
       <Route
         path="/student/courses"
@@ -217,9 +241,22 @@ const AppRoutes = () => {
             currentPage="courses"
             pageTitle="Mes Cours"
             pageSubtitle="Accédez à vos contenus pédagogiques"
-            allowedRoles={['STUDENT']}
+            allowedRoles={["STUDENT"]}
           >
             <StudentCourses />
+          </DashboardLayoutWrapper>
+        }
+      />
+      <Route
+        path="/student/courses/:courseId" // ← Ajoutez le : devant courseId
+        element={
+          <DashboardLayoutWrapper
+            currentPage="courses"
+            pageTitle="Visualisation du cours"
+            pageSubtitle=""
+            allowedRoles={["STUDENT"]}
+          >
+            <StudentCourseView />
           </DashboardLayoutWrapper>
         }
       />
@@ -230,7 +267,7 @@ const AppRoutes = () => {
             currentPage="exams"
             pageTitle="Mes Examens"
             pageSubtitle="Consultez et passez vos examens"
-            allowedRoles={['STUDENT']}
+            allowedRoles={["STUDENT"]}
           >
             <StudentExams />
           </DashboardLayoutWrapper>
@@ -243,7 +280,7 @@ const AppRoutes = () => {
             currentPage="quizzes"
             pageTitle="Mes Quiz"
             pageSubtitle="Entraînez-vous avec nos quiz"
-            allowedRoles={['STUDENT']}
+            allowedRoles={["STUDENT"]}
           >
             <StudentQuizzes />
           </DashboardLayoutWrapper>
@@ -252,7 +289,7 @@ const AppRoutes = () => {
       <Route
         path="/student/profile"
         element={
-          <ProtectedRoute allowedRoles={['STUDENT']}>
+          <ProtectedRoute allowedRoles={["STUDENT"]}>
             <ProfilePage userRole="student" />
           </ProtectedRoute>
         }
@@ -263,9 +300,13 @@ const AppRoutes = () => {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Navigate 
-              to={user?.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard'} 
-              replace 
+            <Navigate
+              to={
+                user?.role === "ADMIN"
+                  ? "/admin/dashboard"
+                  : "/student/dashboard"
+              }
+              replace
             />
           </ProtectedRoute>
         }
@@ -276,9 +317,13 @@ const AppRoutes = () => {
         path="/Dashboard"
         element={
           <ProtectedRoute>
-            <Navigate 
-              to={user?.role === 'ADMIN' ? '/admin/dashboard' : '/student/dashboard'} 
-              replace 
+            <Navigate
+              to={
+                user?.role === "ADMIN"
+                  ? "/admin/dashboard"
+                  : "/student/dashboard"
+              }
+              replace
             />
           </ProtectedRoute>
         }
@@ -286,7 +331,7 @@ const AppRoutes = () => {
       <Route
         path="/Students"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN']}>
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
             <Navigate to="/admin/students" replace />
           </ProtectedRoute>
         }
@@ -295,9 +340,11 @@ const AppRoutes = () => {
         path="/courses"
         element={
           <ProtectedRoute>
-            <Navigate 
-              to={user?.role === 'ADMIN' ? '/admin/courses' : '/student/courses'} 
-              replace 
+            <Navigate
+              to={
+                user?.role === "ADMIN" ? "/admin/courses" : "/student/courses"
+              }
+              replace
             />
           </ProtectedRoute>
         }
@@ -306,9 +353,9 @@ const AppRoutes = () => {
         path="/exams"
         element={
           <ProtectedRoute>
-            <Navigate 
-              to={user?.role === 'ADMIN' ? '/admin/exams' : '/student/exams'} 
-              replace 
+            <Navigate
+              to={user?.role === "ADMIN" ? "/admin/exams" : "/student/exams"}
+              replace
             />
           </ProtectedRoute>
         }
@@ -317,9 +364,11 @@ const AppRoutes = () => {
         path="/quizzes"
         element={
           <ProtectedRoute>
-            <Navigate 
-              to={user?.role === 'ADMIN' ? '/admin/quizzes' : '/student/quizzes'} 
-              replace 
+            <Navigate
+              to={
+                user?.role === "ADMIN" ? "/admin/quizzes" : "/student/quizzes"
+              }
+              replace
             />
           </ProtectedRoute>
         }
